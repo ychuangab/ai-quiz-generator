@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      /* === 全域變數定義 === */
+      :root {
+        --bg-color: #ffffff;
+        --text-color: #333333;
+        --box-bg: #f9f9f9;
+        --border-color: #ddd;
+        --input-bg: #ffffff;
+        --highlight-bg: #e3f2fd;
+        --ai-border: #2196F3;
+        --btn-primary: #007bff;
+        --btn-ai: #9c27b0;
+        --btn-disabled: #6c757d;
+      }
+
+      /* === 深色模式 === */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg-color: #121212;
+          --text-color: #f2f2f2;
+          --box-bg: #1e1e1e;
+          --border-color: #444;
+          --input-bg: #2c2c2c;
+          --highlight-bg: #1a3a5e;
+        }
+      }
+
+      /* === 基礎樣式 === */
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: 16px;
+        font-size: 16px;
+        line-height: 1.6;
+        margin: auto;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        max-width: 600px;
+      }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      /* === 輸入元件樣式 === */
+      input[type="text"],
+      input[type="password"],
+      input[type="number"],
+      input[type="file"],
+      textarea {
+        width: 100%;
+        font-size: 16px;
+        padding: 10px;
+        box-sizing: border-box;
+        margin-bottom: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--input-bg);
+        color: var(--text-color);
+      }
+
+      textarea {
+        min-height: 120px;
+        font-family: monospace;
+      }
+
+      /* === 區塊容器 === */
+      .box {
+        border: 1px solid var(--border-color);
+        padding: 16px;
+        border-radius: 8px;
+        background: var(--box-bg);
+        margin-bottom: 20px;
+      }
+
+      .ai-box {
+        background-color: var(--highlight-bg);
+        border: 2px solid var(--ai-border);
+      }
+
+      /* === 按鈕樣式 === */
+      .btn {
+        padding: 12px 20px;
+        font-size: 16px;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        width: 100%;
+        transition: opacity 0.3s;
+        background: var(--btn-primary);
+      }
+
+      .btn-ai {
+        background: var(--btn-ai);
+        margin-top: 8px;
+      }
+
+      .btn:disabled {
+        background: var(--btn-disabled);
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+
+      /* === 輔助樣式 === */
+      .small-link {
+        font-size: 0.85em;
+        color: var(--btn-primary);
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 8px;
+      }
+
+      .label-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .hint-text {
+        font-size: 0.85em;
+        color: #888;
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>📤 AI 智慧出題系統</h2>
+
+    
+    
+    <div class="box ai-box">
+      <strong>🤖 方式一：Gemini AI 自動生成 JSON</strong><br>
+      <div class="hint-text" style="margin-bottom: 10px;">
+        沒有 API Key？
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="small-link">
+          👉 去 Google AI Studio 免費申請
+        </a>
+      </div>
+      
+      <input type="password" id="apiKey" placeholder="在此貼上 Gemini API Key (以 AI... 開頭)">
+      
+      <div style="margin-bottom: 12px;">
+        <label style="font-size:0.9em; font-weight:bold;">📚 參考文件 (選填)：</label>
+        <input type="text" id="docUrl" placeholder="請貼上 Google Docs 文件網址 (需有權限)" style="margin-top:5px;">
+        <div class="hint-text">※ 若填寫此欄，AI 將優先根據文件內容出題。請確保此 GAS 專案執行者有權限讀取該檔案。</div>
+      </div>
+
+      <input type="text" id="topic" placeholder="請輸入出題主題 (例如：員工守則、資安規範)">
+      
+      <div class="label-row">
+        <span>題數：</span>
+        <input type="number" id="qCount" value="5" min="1" max="20" style="width: 80px;">
+      </div>
+
+      <button id="aiBtn" class="btn btn-ai" onclick="generateByAI()">✨ 根據文件/主題 生成題目</button>
+    </div>
+
+    <div class="box">
+      <strong>📝 方式二：手動上傳／貼上</strong><br>
+      <div class="hint-text">AI 生成成功後，結果會自動填入下方文字框，你也可以手動修改。</div>
+      
+      <input type="file" id="fileInput" accept=".json">
+      <textarea id="jsonText" placeholder='在此貼上 JSON，或等待 AI 生成...'></textarea>
+    </div>
+
+    <label style="display:block; margin-bottom:15px; cursor:pointer;">
+      <input type="checkbox" id="newMode" style="transform: scale(1.2);"> 
+      建立新的 Google Form（不勾選＝更新固定表單）
+    </label>
+    <input type="text" id="title" placeholder="請輸入試卷名稱（僅限新建時）">
+
+    <button id="submitBtn" class="btn" onclick="submitQuiz()">🚀 建立／更新試卷</button>
+    <div id="result" style="margin-top: 15px;"></div>
+
+    <script>
+      // === 功能 A: AI 生成邏輯 ===
+      function generateByAI() {
+        const apiKey  = document.getElementById('apiKey').value.trim();
+        const topic   = document.getElementById('topic').value.trim();
+        const count   = document.getElementById('qCount').value;
+        const docUrl  = document.getElementById('docUrl').value.trim(); // 關鍵：取得文件網址
+
+        const aiBtn   = document.getElementById('aiBtn');
+        const jsonText= document.getElementById('jsonText');
+
+        // 防呆檢查
+        if (!apiKey) {
+          alert('⚠️ 請輸入 Gemini API Key！');
+          return;
+        }
+        if (!topic && !docUrl) {
+          alert('⚠️ 請至少輸入「出題主題」或是提供「參考文件網址」！');
+          return;
+        }
+
+        // 鎖定介面
+        aiBtn.disabled = true;
+        aiBtn.innerText = '⏳ 正在閱讀文件並出題中...';
+        jsonText.value = 'AI 正在努力閱讀您的文件並生成題目，請稍候...';
+
+        // 呼叫後端 GAS
+        google.script.run
+          .withSuccessHandler((jsonResult) => {
+            jsonText.value = jsonResult;
+            aiBtn.disabled = false;
+            aiBtn.innerText = '✨ 根據文件/主題 生成題目';
+            alert('✅ 生成成功！AI 已根據文件/主題完成出題。');
+          })
+          .withFailureHandler((err) => {
+            jsonText.value = '';
+            aiBtn.disabled = false;
+            aiBtn.innerText = '✨ 根據文件/主題 生成題目';
+            alert('❌ 生成失敗：' + err.message);
+          })
+          .callGeminiToGenerateJson(apiKey, topic, count, docUrl);
+      }
+
+      // === 功能 B: 建立試卷邏輯 ===
+      function submitQuiz() {
+        const titleInput = document.getElementById('title');
+        const fileInput  = document.getElementById('fileInput');
+        const txtInput   = document.getElementById('jsonText');
+        const newModeEl  = document.getElementById('newMode');
+        const resEl      = document.getElementById('result');
+        const btn        = document.getElementById('submitBtn');
+
+        const file  = fileInput.files[0];
+        const txt   = txtInput.value.trim();
+        const isNew = newModeEl.checked;
+        const title = titleInput.value.trim() || '自動產生測驗';
+
+        // 內容檢查
+        if (!file && !txt) {
+          alert('⚠️ 請先透過 AI 生成題目，或是手動貼上 JSON 文字！');
+          txtInput.focus();
+          return;
+        }
+        
+        // 格式預檢 (僅針對文字輸入)
+        if (!file && txt) {
+            try { JSON.parse(txt); } 
+            catch(e) { 
+                alert('❌ JSON 格式錯誤！\n可能是 AI 生成了一半，或是手動修改時少了大括號。\n請檢查下方文字框內容。'); 
+                return; 
+            }
+        }
+
+        // UI 鎖定
+        btn.disabled = true;
+        btn.innerText = '⏳ 處理中...';
+        resEl.innerHTML = '';
+
+        // 定義後端回調處理
+        const processPayload = (jsonString) => {
+          const onSuccess = (resp) => {
+             const info = JSON.parse(resp);
+             resEl.innerHTML = `<div style="color:green">✅ 成功！<br><a href="${info.url}" target="_blank">🔗 開啟表單</a></div>`;
+             resetBtn();
+          };
+          const onFailure = (err) => {
+             resEl.innerHTML = `<div style="color:red">❌ 失敗：${err.message}</div>`;
+             resetBtn();
+          };
+
+          if (isNew) {
+            google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).createQuizFromJson(jsonString, title);
+          } else {
+            google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).updateFixedQuiz(jsonString);
+          }
+        };
+
+        // 判斷是檔案還是文字
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => processPayload(e.target.result);
+          reader.readAsText(file);
+        } else {
+          processPayload(txt);
+        }
+
+        function resetBtn() {
+          btn.disabled = false;
+          btn.innerText = '🚀 建立／更新試卷';
+        }
+      }
+    </script>
+  </body>
+</html>
