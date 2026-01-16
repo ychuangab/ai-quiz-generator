@@ -118,7 +118,7 @@ ai-quiz-generator/
 ├── LICENSE             # ⚖️ 授權條款 (MIT License)
 ├── .gitignore          # 🙈 Git 忽略檔 (排除系統垃圾檔)
 └── screenshot.png      # 📸 系統介面截圖 (用於 README 展示)
-
+```
 ---
 
 ## ⚠️ 注意事項與常見問題
