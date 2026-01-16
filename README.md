@@ -107,17 +107,17 @@
 
 ---
 
-## 📂 專案結構說明
+## 📂 專案結構
 
-* `Code.js`: 後端核心邏輯 (GAS)。
-    * 處理 Gemini API 呼叫與 Prompt 工程。
-    * 負責 Google Form 的建立與修改。
-    * 管理 `onFormSubmit` 觸發器與閱卷邏輯。
-* `index.html`: 前端操作介面。
-    * 提供 API Key 輸入與參數設定。
-    * 即時預覽 AI 生成的 JSON 結果。
-* `appsscript.json`: 專案權限設定檔。
-    * 定義了程式所需的 OAuth Scopes (Drive, Forms, Spreadsheets, External Request 等)。
+```text
+ai-quiz-generator/
+├── Code.js             # 🧠 後端核心邏輯 (處理 API、表單與閱卷)
+├── index.html          # 🎨 前端操作介面 (API Key 輸入與 JSON 預覽)
+├── appsscript.json     # ⚙️ 專案設定檔 (定義 OAuth 權限範圍)
+├── README.md           # 📖 專案說明文件 (安裝教學、功能介紹)
+├── LICENSE             # ⚖️ 授權條款 (MIT License)
+├── .gitignore          # 🙈 Git 忽略檔 (排除系統垃圾檔)
+└── screenshot.png      # 📸 系統介面截圖 (用於 README 展示)
 
 ---
 
